@@ -1,0 +1,65 @@
+digraph micro_prog
+{
+	PCL			[label="PCL(0)"];
+	PCH			[label="PCH(1)"];
+	IF			[label="IF(2)"];
+	"rR";
+	"rW";
+	"MR";
+	"MW";
+	"rLO";
+	"rHO";
+	"IMMb";
+	"IMMa";
+	"PCHU";
+	"PCLU";
+	"POP";
+	"POPc";
+	"X0";
+	"X1";
+	"X2";
+	"rAO";
+	"rBO";
+	"IOb";
+
+	PCL->PCH;		// 
+	PCH->IF;		// 
+	PCH->"IMMb";		// LrI, ALU op I, JMP, JFc/JTc, CAL, CFc/CTc
+	PCH->"IMMa";		// JMP, JFc/JTc, CAL, CFc/CTc
+	IF->"rR";			// Lrr, LMr, ALU op r
+	IF->"rLO";		// LrM, ALU op M
+	IF->"rAO";		// INP, OUT
+	IF->"POP";		// RET
+	IF->"POPc";		// RFc/RTc
+	IF->"X1";			// INr/DCr, ROT
+	"rR"->"rW";			// Lrr, ALU op r
+	"rR"->"rLO";		// LMr
+	"rLO"->"rHO";		// 
+	"rAO"->"rBO";		// 
+	"rHO"->"MR";		// LrM, ALU op M
+	"rHO"->"MW";		// LMr
+	"IMMb"->"X1";		// LrI, ALU op I
+	"IMMb"->PCL;		// JMP, JFc/JTc, CAL, CFc/CTc
+	"IMMa"->"PCHU";		// JMP, CAL
+	"IMMa"->"PCHUc";	// JFc/JTc, CFc/CTc
+	"PCHU"->"PCLU";		// 
+	"PCHUc"->"PCLU";	// 
+	"X1"->"rW";			// LrM, LrI, INr/DCr, ALU op M, ALU op I
+	"MR"->"X1";			// 
+	"rBO"->"IOb";		// INP
+	"rBO"->"X0";		// OUT
+	"IOb"->"CO";		//
+	"CO"->"rW";			//
+	"POP"->"X2";		// POP
+	"POPc"->"X2";		// POPc
+	// 指令执行结束
+	"rW"->PCL;		// Lrr, LrM, LrI, INr/DCr, ALU op r, ALU op M, ALU op I, ROT, INP
+	IF->PCL;		// HLT, JUMP, CALL
+	"MW"->PCL;		// LMr
+	"PCLU"->PCL;		// 
+	"IMMa"->PCL;		// JFc/JTc, CFc/CTc
+	"POPc"->PCL;		// RFc/RTc
+	"X0"->PCL;		// OUT
+	"X2"->PCL;		// RET, RFc/RTc
+	"rW"->PCL;		
+}

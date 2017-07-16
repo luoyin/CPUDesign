@@ -1,0 +1,247 @@
+\documentclass[10pt]{book}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{latexsym}
+\usepackage{ctex}
+\usepackage{mathdots}
+\usepackage{mathrsfs}
+\usepackage{longtable}
+\usepackage{supertabular}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{array}
+\usepackage{color, framed}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{threeparttable}
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{enumerate}
+\usepackage{footmisc}
+\usepackage{comment}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric}
+\usepackage{lscape}
+\usepackage[colorlinks]{hyperref}
+\usepackage{geometry}
+\setcounter{secnumdepth}{4}
+\geometry{left=2.0cm, right=2.0cm, top=2.0cm, bottom=2.0cm}
+
+\begin{document}
+
+\lstset{numbers=left, 
+	numberstyle= \tiny, 
+	keywordstyle= \color{ blue!70},
+	commentstyle=\color{red!50!green!50!blue!50},
+	frame=shadowbox, 
+	rulesepcolor= \color{ red!20!green!20!blue!20},
+	xleftmargin=-1em,
+	xrightmargin=-1em,
+	tabsize=4,
+	breaklines=true,
+    basicstyle=\small
+}
+
+\definecolor{shadecolor}{rgb}{0.92, 0.92, 0.92}
+
+\newcommand{\red}[1]{\textcolor[rgb]{1.0, 0.0, 0.0}{#1}}
+\newcommand{\green}[1]{\textcolor[rgb]{0.0, 1.0, 0.0}{#1}}
+\newcommand{\blue}[1]{\textcolor[rgb]{0.0, 0.0, 1.0}{#1}}
+\newcommand{\mypath}[1]{/home/luoyin/Notes2016/ECG_Analysis/{#1}/}
+
+\title{CPU设计: 8008}
+\author{luoyin}
+\date{}
+\maketitle
+
+\tableofcontents
+
+\chapter{微程序设计}
+\section{子程序设计}
+\begin{itemize}
+  \item IF (Instruction Fetch): T1-T2-T3 (PCI)
+  \item MR (Memory Read): T1-T2-T3 (PCR)
+  \item MW (Memory Write): T1-T2-T3 (PCW)
+  \item RR (Register Read): T4
+  \item RW (Register Write): T5
+  \item PCU (PC Update): T4-T5
+  \item IOR (I/O Read): T3-T4-T5
+\end{itemize}
+
+\section{指令组成}
+\begin{landscape}
+\begin{longtable}{|l|l|l|}
+\caption{指令组成} \label{tb_ins_comb}\\
+\hline
+指令 & 指令码 & 组成 \\
+\hline
+\endfirsthead
+\caption{指令组成(续)} \\
+\hline
+指令 & 指令码 & 组成 \\
+\hline
+\endhead
+\hline
+\endfoot
+Lrr 			& 11DDDSSS & PCO(PCL-PCH)-IF-rR-rW \\
+LrM				& 11DDD111 & PCO(PCL-PCH)-IF-MA(rLO-rMO)-MR-X1-rW \\
+LMr				& 11111SSS & PCO(PCL-PCH)-IF-rR-MA(rLO-rMO)-MW \\
+LrI				& 00DDD110 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-X1-rW \\
+\hline
+INr/DCr			& 00DDD00V & PCO(PCL-PCH)-IF-X1-rW \\
+\hline
+ALU OP r		& 10PPPSSS & PCO(PCL-PCH)-IF-rR-rW \\
+ALU OP M 		& 10PPP111 & PCO(PCL-PCH)-IF-MA(rLO-rMO)-MR-X1-rW \\
+ALU OP I 		& 00PPP100 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-X1-rW \\
+ROT 			& 000VV010 & PCO(PCL-PCH)-IF-X1-rW \\
+\hline
+JMP				& 01XXX100 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa-PCU(PCHU-PCLU) \\
+JFc/JTc			& 01VCC000 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa-PCUc(PCHU-PCLU, c) \\
+CAL				& 01XXX110 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa-PCU(PCHU-PCLU) \\
+CFc/CTc			& 01VCC010 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa-PCUc(PCHU-PCLU, c) \\
+RET				& 00XXX111 & PCO(PCL-PCH)-IF-POP-X2 \\
+RFc/RTc			& 00VCC011 & PCO(PCL-PCH)-IF-POPc(c)-X2 \\
+\hline
+INP				& 0100MMM1 & PCO(PCL-PCH)-IF-IO(rAO-rBO)-IOb-CO-rW \\
+OUT				& 01RRMMM1 & PCO(PCL-PCH)-IF-IO(rAO-rBO)-X0 \\
+\hline
+HLT				& 0000000X & PCO(PCL-PCH)-IF \\
+HLT				& 11111111 & PCO(PCL-PCH)-IF \\
+\end{longtable}
+\end{landscape}
+
+\section{指令执行状态变化}
+
+\section{微指令设计}
+\subsection{微指令组成}
+\begin{itemize}
+  \item 状态码 (3位)
+  \item 寄存器组操作 (2位): 输出使能, 写使能
+  \item 
+\end{itemize}
+
+\subsection{指令分类}
+\begin{itemize}
+  \item $D_{7}D_{6}=00$: 特殊指令
+  \begin{itemize}
+    \item $D_{2}D_{1}D_{0}=000$: HLT
+    \item $D_{2}D_{1}D_{0}=001$: HLT
+    \item $D_{2}D_{1}D_{0}=010$: ROT
+    \item $D_{2}D_{1}D_{0}=011$: RFc/RTc
+    \item $D_{2}D_{1}D_{0}=100$: ALU OP I
+    \item $D_{2}D_{1}D_{0}=101$: RST
+    \item $D_{2}D_{1}D_{0}=110$: LrM/LrI
+    \item $D_{2}D_{1}D_{0}=111$: RET
+  \end{itemize}
+  \item $D_{7}D_{6}=01$: 跳转指令
+  \begin{itemize}
+    \item $D_{2}D_{1}D_{0}=000$: JFc/JTc
+    \item $D_{2}D_{1}D_{0}=010$: CFc/CTc
+    \item $D_{2}D_{1}D_{0}=100$: JMP
+    \item $D_{2}D_{1}D_{0}=110$: CAL
+    \item $D_{2}D_{1}D_{0}=XX1$: INP/OUT
+  \end{itemize}
+  \item $D_{7}D_{6}=10$: 算术指令
+  \item $D_{7}D_{6}=11$: 寄存器指令
+\end{itemize}
+
+\subsection{微程序分类与跳转}
+使用$D_{7}D_{6}$进行一次分组, 使用$D_{2}D_{1}D_{0}$进行二次分组
+
+\subsection{微指令转移}
+微指令转移按照如下计算规则:
+\begin{equation}
+A_{i}=\mu A_{i}+\sum P^{I}_{i}I_{i}+\sum P^{S}_{i}S_{i}+\sum P^{C}_{i}C_{i}
+\end{equation}
+其中, $\mu A_{i}$为微指令中的下一指令段, $P$为微指令中的控制段, 按作用类型不同分为指令控制段$P^{I}_{i}$, 状态控制段$P^{S}_{i}$, 和条件控制段$P^{C}_{i}$, $I_{i}$为指令寄存器的位段, $S_{i}$为状态寄存器的位段, $C_{i}$为条件判定寄存器的位段.
+
+\subsection{微指令转移方式}
+\begin{itemize}
+  \item 直接转移: 微指令中的控制段均为0, 微指令运行下一指令直接由微指令中的$\mu A_{i}$段决定.
+  \item 按指令转移: 微指令中的指令控制段$P^{I}_{i}$不为0, 此时, 微指令中的$\mu A_{i}$段决定跳转时的基址, $\sum P^{I}_{i}I_{i}$决定偏移量.
+  \item 按状态转移: 微指令中的状态控制段$P^{S}_{i}$不为0, 此时, 微指令中的$\mu A_{i}$段决定跳转时的基址, $\sum P^{S}_{i}S_{i}$决定偏移量.
+  \item 按条件转移: 微指令中的条件控制段$P^{C}_{i}$不为0, 此时, 微指令中的$\mu A_{i}$段决定跳转时的基址, $\sum P^{C}_{i}C_{i}$决定偏移量.
+  \item 复合转移: 微指令中的$\mu A_{i}$段决定跳转时的基址, 结合指令控制段$P^{I}_{i}$, 状态控制段$P^{S}_{i}$, 和条件控制段$P^{C}_{i}$综合决定偏移量.
+\end{itemize}
+
+\subsection{微指令转移方式}
+\begin{landscape}
+\begin{longtable}{|l|l|l|l|l|l|l|}
+\caption{微程序表} \label{tb_micro_prog} \\
+\hline
+地址 & 微指令 & 状态 & 功能 & 下一微指令 & 下一状态 & 转移类型             \\
+\hline
+\endfirsthead
+\caption{模块列表(续)} \\
+\hline
+地址 & 微指令 & 状态 & 功能 & 下一微指令 & 下一状态 & 转移类型             \\
+\hline
+\endhead
+\hline
+\endfoot
+0	& PCL	& T1 	& PCL输出 				& PCH 								& T2 			& 直接转移 \\
+1	& PCH 	& T2 	& PCH输出 				& IF, IMMa, IMMb					& T3, WAIT 		& 状态转移 \\
+2	& IF  	& T3 	& DATA to IR and regB 	& rR, rLO, PCL, POP, POPc, rAO, X1	& T4, T1, HLT	& 指令转移, 状态转移, 条件转移 \\ 
+& rR  	& T4 	& reg Read  			& rW, rLO		 					& T5, T1, HLT 	& 指令转移, 状态转移  \\
+& rW  	& T5 	& reg Write 			& PCL								& T1, INT		& 指令转移, 状态转移 \\
+& rLO 	& T1 	& reg L Out 			& rHO								& T2			& 直接转移 \\
+& rHO 	& T2 	& reg H Out 			& MR, MW							& T3, WAIT		& 指令转移, 状态转移 \\
+& MR  	& T3	& Memory Read 			& X1								& T4			& 直接转移 \\
+& MW  	& T3	& Memory Write 			& PCL								& T1, INT		& 状态转移 \\ 
+\end{longtable}
+\end{landscape}
+
+\subsection{跳转设计}
+\subsubsection{IF跳出}
+跳出指向
+\begin{itemize}
+  \item rR: Lrr+LMr (11VVVSSS), ALU op r (10PPPSSS), 合并(1XXXXSSS, SSS<>111)
+  \item rLO: LrM (11DDD111, DDD<>111), ALU op M (10PPP111)
+  \item rAO: INP+OUT (01XXXXX1)
+  \item POP: RETURN (00XXXX11)
+  \item PCL: JUMP, CALL (01XXXXX0)
+  \item PCL(next): HLT, INT, NORMAL
+  \item X1: INr/DCr
+\end{itemize}
+
+\subsection{微指令组合逻辑}
+\begin{itemize}
+  \item srcM: $D_{2}D_{1}D_{0}$
+  \item dstM: $D_{5}D_{4}D_{3}$
+  \item JUMP: 
+\end{itemize}
+
+\subsection{微指令表}
+\begin{landscape}
+\begin{longtable}{|l|l|c|c|c|c|c|c|c|c|c|c|c|}
+\caption{微指令表} \label{tb_micro_prog} \\
+\hline
+\multirow{2}{1cm}{地址} & \multirow{2}{1.5cm}{微指令} & \multicolumn{3}{c|}{S} & \multicolumn{3}{c|}{P} & \multicolumn {5}{c|}{$\mu A$} \\
+\cline{3-13}
+                       &                          & 2 & 1 & 0 & 2 & 1 & 0 & 4 & 3 & 2 & 1 & 0 \\
+% 地址 & 微指令 & S2 & S1 & S0 & $P_{0}$ & $\mu A_{2}$ & $\mu A_{1}$ & $\mu A_{0}$             \\
+\hline
+\endfirsthead
+\caption{微指令表(续)} \\
+\hline
+\multirow{2}{1cm}{地址} & \multirow{2}{1.5cm}{微指令} & \multicolumn{3}{c|}{S} & \multicolumn{3}{c|}{P} & \multicolumn {5}{c|}{$\mu A$} \\
+\cline{3-12}
+                       &                          & 2 & 1 & 0 & 2 & 1 & 0 & 4 & 3 & 2 & 1 & 0 \\
+\hline
+\endhead
+\hline
+\endfoot
+00000 & PCL		& 0 & 1 & 0   & 0 & 0 & 0   & 0 & 0 & 0 & 0 & 1 \\
+00001 & PCH		& 1 & 0 & 0   & 0 & 0 & 0   & x & x & x & x & x \\
+00010 & IF   	& 0 & 0 & 1   & x & x & x   & 0 & 1 & x & x & x \\
+01000 & rR   	& 1 & 1 & 1   & x & x & x   & x & x & x & x & x \\
+01001 & POP  	& 1 & 1 & 1   & 0 & 0 & 0   & x & x & x & x & x \\
+01010 & X1   	& 1 & 1 & 1   & 0 & 0 & 0   & x & x & x & x & x \\
+01100 & rLO		& 0 & 1 & 0   & 0 & 0 & 0	& x & x & x & x & x \\
+01101 & rAO  	& 0 & 1 & 0   & 0 & 0 & 0   & x & x & x & x & x \\
+01110 & PCL2 	& 0 & 1 & 0   & 0 & 0 & 0   & x & x & x & x & x \\
+\end{longtable}
+\end{landscape}
+
+\end{document}
