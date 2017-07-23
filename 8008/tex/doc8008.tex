@@ -96,10 +96,10 @@ ALU OP M 		& 10PPP111 & PCO(PCL-PCH)-IF-MA(rLO-rMO)-MR-X1-rW \\
 ALU OP I 		& 00PPP100 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-X1-rW \\
 ROT 			& 000VV010 & PCO(PCL-PCH)-IF-X1-rW \\
 \hline
-JMP				& 01XXX100 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa-PCU(PCHU-PCLU) \\
-JFc/JTc			& 01VCC000 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa-PCUc(PCHU-PCLU, c) \\
-CAL				& 01XXX110 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa-PCU(PCHU-PCLU) \\
-CFc/CTc			& 01VCC010 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa-PCUc(PCHU-PCLU, c) \\
+JMP				& 01XXX100 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa1-PCU(PCHU-PCLU) \\
+JFc/JTc			& 01VCC000 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa2-PCU(PCHU-PCLU) \\
+CAL				& 01XXX110 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa3-PCU(PCHU-PCLU) \\
+CFc/CTc			& 01VCC010 & PCO(PCL-PCH)-IF-PCO(PCL-PCH)-IMMb-PCO(PCL-PCH)-IMMa4-PCU(PCHU-PCLU) \\
 RET				& 00XXX111 & PCO(PCL-PCH)-IF-POP-X2 \\
 RFc/RTc			& 00VCC011 & PCO(PCL-PCH)-IF-POPc(c)-X2 \\
 \hline
@@ -205,6 +205,91 @@ A_{i}=\mu A_{i}+\sum P^{I}_{i}I_{i}+\sum P^{S}_{i}S_{i}+\sum P^{C}_{i}C_{i}
   \item X1: INr/DCr
 \end{itemize}
 
+\subsubsection{指令前缀00}
+指令通过$D_{2}D_{1}D_{0}$进行分类
+\begin{itemize}
+  \item 000: HLT/INr (通过$D_{5}D_{4}D_{3}$进行分类). IF-STOP/IF-X1
+  \item 001: HLT/DCr (通过$D_{5}D_{4}D_{3}$进行分类). IF-STOP/IF-X1
+  \item 010: ROT (RLC, RRC, RAL, RAR, 通过$D_{5}D_{4}D_{3}$进行分类). IF-X1
+  \item 011: RFc/RTc. IF-POP
+  \item 100: ALU op I. IF-PCL
+  \item 101: RST. IF-PCLU2-PCHU2
+  \item 110: LrI/LMI (通过$D_{5}D_{4}D_{3}$进行分类). IF-PCL
+  \item 111: RET. IF-POP
+\end{itemize}
+
+将微程序地址10000-10111与上面8个指令对应. 指令跳转表达式为
+\begin{eqnarray}
+J_{C} &=& \bar D_{7}\bar D_{6}(\overline{\bar D_{2}D_{1}D{0}}+\bar D_{2}D_{1}D_{0}J) \\
+A_{4} &=& J_{C}1 \\
+A_{3} &=& J_{C}P_{0}(D_{7}+D_{6}) \\
+A_{2} &=& J_{C}(\mu A_{2}+P_{0}\bar D_{7}\bar D_{6}I_{2}) \\
+A_{1} &=& J_{C}(\mu A_{1}+P_{0}\bar D_{7}\bar D_{6}I_{1}) \\
+A_{0} &=& J_{C}(\mu A_{0}+P_{0}\bar D_{7}\bar D_{6}I_{0}) 
+\end{eqnarray}
+
+\subsubsection{指令前缀01}
+指令通过$D_{2}D_{1}D_{0}$进行分类
+\begin{itemize}
+  \item 000: JFc/JTc
+  \item 010: CFc/CTc
+  \item 100: JMP
+  \item 110: CAL
+  \item XX1: INP/OUT
+\end{itemize}
+
+将微程序地址11000-11111与上面8个指令对应. 指令跳转表达式为
+\begin{eqnarray}
+J_{C} &=& \bar D_{7}D_{6}(\overline{\bar D_{2}\bar D_{0}}+\bar D_{2}\bar D_{0}J) \\
+A_{4} &=& \bar J_{C}1 \\
+A_{3} &=& \bar J_{C}(P_{0}\bar D_{7}D_{6}) \\
+A_{2} &=& \bar J_{C}(\mu A_{2}+P_{1}\bar D_{7}D_{6}I_{0}) \\
+A_{1} &=& \bar J_{C}(\mu A_{2}+P_{1}\bar D_{7}D_{6}I_{2}) \\
+A_{0} &=& \bar J_{C}(\mu A_{2}+P_{1}\bar D_{7}D_{6}I_{1}\bar I_{0}+P_{1}\bar D_{7}D_{6}\bar I_{5}\bar I_{4}I_{0})
+\end{eqnarray}
+
+\subsubsection{指令前缀10}
+指令通过$D_{2}D_{1}D_{0}$进行分类
+\begin{itemize}
+  \item SSS: ALU op r
+  \item 111: ALU op M
+\end{itemize}
+
+将微程序地址100000-100001与上面2个指令对应. 指令跳转表达式为
+\begin{eqnarray}
+A_{5} &=& D_{7}\bar D_{6} \\
+A_{4} &=& \overline{D_{7}\bar D_{6}} \\
+A_{3} &=& \overline{D_{7}\bar D_{6}} \\
+A_{2} &=& \overline{D_{7}\bar D_{6}} \\
+A_{1} &=& \overline{D_{7}\bar D_{6}} \\
+A_{0} &=& D_{7}\bar D_{6}I_{2}I_{1}I_{0}
+\end{eqnarray}
+
+\subsubsection{指令前缀11}
+指令通过$D_{5}D_{4}D_{3}D_{2}D_{1}D_{0}$进行分类
+\begin{itemize}
+  \item DDDSSS: Lrr
+  \item DDD111: LrM
+  \item 111SSS: LMr
+  \item 111111: HLT
+\end{itemize}
+
+将微程序地址100100-100111与上面4个指令对应. 指令跳转表达式为
+\begin{eqnarray}
+A_{5} &=& D_{7}D_{6} \\
+A_{4} &=& \overline{D_{7}D_{6}} \\
+A_{3} &=& \overline{D_{7}D_{6}} \\
+A_{2} &=& D_{7}D_{6} \\
+A_{1} &=& D_{7}D_{6}I_{5}I_{4}I_{3} \\
+A_{0} &=& D_{7}D_{6}I_{2}I_{1}I_{0}
+\end{eqnarray}
+
+\subsubsection{条件跳转}
+适用指令: JFc/JTc, CFc/CTc, RFc/RTc, 引入条件判定变量$J$, 当条件成立时$J=1$, 否则$J=0$, 指令跳转表达式为
+\begin{equation}
+A_{i}=J()
+\end{equation}
+
 \subsection{微指令组合逻辑}
 \begin{itemize}
   \item srcM: $D_{2}D_{1}D_{0}$
@@ -213,35 +298,172 @@ A_{i}=\mu A_{i}+\sum P^{I}_{i}I_{i}+\sum P^{S}_{i}S_{i}+\sum P^{C}_{i}C_{i}
 \end{itemize}
 
 \subsection{微指令表}
-\begin{landscape}
-\begin{longtable}{|l|l|c|c|c|c|c|c|c|c|c|c|c|}
+\begin{longtable}{|l|l|l|c|c|c|c|c|c|c|c|c|c|c|}
 \caption{微指令表} \label{tb_micro_prog} \\
 \hline
-\multirow{2}{1cm}{地址} & \multirow{2}{1.5cm}{微指令} & \multicolumn{3}{c|}{S} & \multicolumn{3}{c|}{P} & \multicolumn {5}{c|}{$\mu A$} \\
-\cline{3-13}
-                       &                          & 2 & 1 & 0 & 2 & 1 & 0 & 4 & 3 & 2 & 1 & 0 \\
+\multirow{2}{1cm}{地址} & \multirow{2}{1.5cm}{指令} & \multirow{2}{1.5cm}{微指令} & \multicolumn{3}{c|}{S} & \multicolumn{3}{c|}{P} & \multicolumn {5}{c|}{$\mu A$} \\
+\cline{4-14}
+                       &             &             & 2 & 1 & 0 & 2 & 1 & 0 & 4 & 3 & 2 & 1 & 0 \\
 % 地址 & 微指令 & S2 & S1 & S0 & $P_{0}$ & $\mu A_{2}$ & $\mu A_{1}$ & $\mu A_{0}$             \\
 \hline
 \endfirsthead
 \caption{微指令表(续)} \\
 \hline
-\multirow{2}{1cm}{地址} & \multirow{2}{1.5cm}{微指令} & \multicolumn{3}{c|}{S} & \multicolumn{3}{c|}{P} & \multicolumn {5}{c|}{$\mu A$} \\
-\cline{3-12}
-                       &                          & 2 & 1 & 0 & 2 & 1 & 0 & 4 & 3 & 2 & 1 & 0 \\
+\multirow{2}{1cm}{地址} & \multirow{2}{1.5cm}{指令} & \multirow{2}{1.5cm}{微指令} & \multicolumn{3}{c|}{S} & \multicolumn{3}{c|}{P} & \multicolumn {5}{c|}{$\mu A$} \\
+\cline{4-14}
+                       &             &             & 2 & 1 & 0 & 2 & 1 & 0 & 4 & 3 & 2 & 1 & 0 \\
 \hline
 \endhead
 \hline
 \endfoot
-00000 & PCL		& 0 & 1 & 0   & 0 & 0 & 0   & 0 & 0 & 0 & 0 & 1 \\
-00001 & PCH		& 1 & 0 & 0   & 0 & 0 & 0   & x & x & x & x & x \\
-00010 & IF   	& 0 & 0 & 1   & x & x & x   & 0 & 1 & x & x & x \\
-01000 & rR   	& 1 & 1 & 1   & x & x & x   & x & x & x & x & x \\
-01001 & POP  	& 1 & 1 & 1   & 0 & 0 & 0   & x & x & x & x & x \\
-01010 & X1   	& 1 & 1 & 1   & 0 & 0 & 0   & x & x & x & x & x \\
-01100 & rLO		& 0 & 1 & 0   & 0 & 0 & 0	& x & x & x & x & x \\
-01101 & rAO  	& 0 & 1 & 0   & 0 & 0 & 0   & x & x & x & x & x \\
-01110 & PCL2 	& 0 & 1 & 0   & 0 & 0 & 0   & x & x & x & x & x \\
+000000	&  			& PCL		& 0 & 1 & 0   & 0 & 0 & 0   & 0 & 0 & 0 & 0 & 1 \\
+000001 	& 			& PCH		& 1 & 0 & 0   & 0 & 0 & 0   & x & x & x & x & x \\
+000010 	& 			& IF   		& 0 & 0 & 1   & x & x & x   & 0 & 1 & x & x & x \\
+001000 	& 			& rR   		& 1 & 1 & 1   & x & x & x   & x & x & x & x & x \\
+001001 	& 			& POP  		& 1 & 1 & 1   & 0 & 0 & 0   & x & x & x & x & x \\
+001010 	& 			& X1   		& 1 & 1 & 1   & 0 & 0 & 0   & x & x & x & x & x \\
+001100 	& 			& rLO		& 0 & 1 & 0   & 0 & 0 & 0	& x & x & x & x & x \\
+001101 	&			& rAO  		& 0 & 1 & 0   & 0 & 0 & 0   & x & x & x & x & x \\
+001110 	&			& PCL2 		& 0 & 1 & 0   & 0 & 0 & 0   & x & x & x & x & x \\
+010000	& INr		& 			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+010001	& DCr		& 			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+010010	& ROT		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+010011	& RETc		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+010100	& ALU op I 	& 			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+010101	& RST		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+010110	& LrI/LMI	&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+010111	& RET		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+011000	& JMPc		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+011001	& CALc		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+011010	& JMP		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+011011	& CAL		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+011100	& INP		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+011101	& OUT		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+100000	& ALU op r 	&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+100001	& ALU op M 	&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+100100	& Lrr		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+100101	& LrM		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+100110	& LMr		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
+100111	& HLT		&			& 1 & 1 & 1	  &   &   &     & x & x & x & x & x \\
 \end{longtable}
-\end{landscape}
+
+\section{微指令设计}
+\subsection{指令译码}
+\begin{eqnarray}
+Lrr 	&=& D_{7}D_{6}\overline{D_{5}D_{4}D_{3}}~\overline{D_{2}D_{1}D_{0}} \\
+LrM 	&=& D_{7}D_{6}\overline{D_{5}D_{4}D_{3}}D_{2}D_{1}D_{0} \\
+LMr 	&=& D_{7}D_{6}D_{5}D_{4}D_{3}\overline{D_{2}D_{1}D_{0}} \\
+LrI 	&=& \bar{D_{7}}\bar{D_{6}}\overline{D_{5}D_{4}D_{3}}D_{2}D_{1}\bar{D_{0}} \\
+LMI 	&=& \bar{D_{7}}\bar{D_{6}}D_{5}D_{4}D_{3}D_{2}D_{1}\bar{D_{0}} \\
+INr 	&=& \bar{D_{7}}\bar{D_{6}}\overline{D_{5}D_{4}D_{3}}\bar{D_{2}}\bar{D_{1}}\bar{D_{0}} \\
+DCr 	&=& \bar{D_{7}}\bar{D_{6}}\overline{D_{5}D_{4}D_{3}}\bar{D_{2}}\bar{D_{1}}D_{0} \\
+ALUopR 	&=& D_{7}\bar{D_{6}}\overline{D_{2}D_{1}D_{0}} \\
+ALUopM 	&=& D_{7}\bar{D_{6}}D_{2}D_{1}D_{0} \\
+ALUopI 	&=& \bar{D_{7}}\bar{D_{6}}D_{2}\bar{D_{1}}\bar{D_{0}} \\
+ROT		&=& \bar{D_{7}}\bar{D_{6}}\bar{D_{2}}D_{1}\bar{D_{0}} \\
+JMP		&=& \bar{D_{7}}D_{6}D_{2}\bar{D_{1}}\bar{D_{0}} \\
+JMPc	&=& \bar{D_{7}}D_{6}\bar{D_{2}}\bar{D_{1}}\bar{D_{0}} \\
+CAL		&=& \bar{D_{7}}D_{6}D_{2}D_{1}\bar{D_{0}} \\
+CALc	&=& \bar{D_{7}}D_{6}\bar{D_{2}}D_{1}\bar{D_{0}} \\
+RET		&=& \bar{D_{7}}\bar{D_{6}}D_{2}D_{1}D_{0} \\
+RETc	&=& \bar{D_{7}}\bar{D_{6}}\bar{D_{2}}D_{1}D_{0} \\
+RST		&=& \bar{D_{7}}\bar{D_{6}}D_{2}\bar{D_{1}}D_{0} \\
+INP		&=& \bar{D_{7}}D_{6}\bar{D_{5}}\bar{D_{4}}D_{0} \\
+OUT		&=& \bar{D_{7}}D_{6}(\bar{D_{5}}+\bar{D_{4}})D_{0} \\
+HLT		&=& \bar{D_{7}}\bar{D_{6}}\bar{D_{5}}\bar{D_{4}}\bar{D_{3}}\bar{D_{2}}\bar{D_{1}}+D_{7}D_{6}D_{5}D_{4}D_{3}D_{2}D_{1}D_{0}
+\end{eqnarray}
+将指令分段
+\begin{eqnarray}
+M_s		&=& D_{2}D_{1}D_{0} \\
+M_d		&=& D_{5}D_{4}D_{3}  
+\end{eqnarray}
+指令编码公式如下
+\begin{eqnarray}
+I_{Lrr}		&=& D_7 D_6\overline{M_d}~\overline{M_s} \\
+I_{LrM}		&=& D_7 D_6\overline{M_d}M_s \\
+I_{LMr}		&=& D_7 D_6 M_d\overline{M_s} \\
+I_{LrI}		&=& \bar{D_7}\bar{D_6}\overline{M_d}D_2 D_1\bar{D_0} \\
+I_{LMI}		&=& \bar{D_7}\bar{D_6}M_d D_2 D_1\bar{D_0} \\
+I_{INr}		&=& \bar{D_7}\bar{D_6}\overline{M_d}\bar{D_2}\bar{D_1}\bar{D_0} \\
+I_{DCr}		&=& \bar{D_7}\bar{D_6}\overline{M_d}\bar{D_2}\bar{D_1}D_0 \\
+I_{ALUopR}	&=& D_7\bar{D_6}\overline{M_s} \\
+I_{ALUopM}	&=& D_7\bar{D_6}M_s \\
+I_{ALUopI}	&=& \bar{D_7}\bar{D_6}D_2\bar{D_1}\bar{D_0} \\
+I_{ROT}		&=& \bar{D_7}\bar{D_6}\bar{D_2}D_1\bar{D_0} \\
+I_{JMP}		&=& \bar{D_7}D_6 D_2\bar{D_1}\bar{D_0} \\
+I_{JMPc}	&=& \bar{D_7}D_6 \bar{D_2}\bar{D_1}\bar{D_0} \\
+I_{CAL}		&=& \bar{D_7}D_6 D_2 D_1\bar{D_0} \\
+I_{CALc}	&=& \bar{D_7}D_6 \bar{D_2}D_1\bar{D_0} \\
+I_{RET}		&=& \bar{D_7}\bar{D_6}D_2 D_1 D_0 \\
+I_{RETc}	&=& \bar{D_7}\bar{D_6}\bar{D_2}D_1 D_0 \\
+I_{RST}		&=& \bar{D_7}\bar{D_6}D_2\bar{D_1}D_0 \\
+I_{INP}		&=& \bar{D_7}D_6\bar{D_5}\bar{D_4}D_0 \\
+I_{OUT}		&=& \bar{D_7}D_6(D_5+D_4)D_0 \\
+I_{HLT}		&=& \bar{D_7}\bar{D_6}\bar{D_5}\bar{D_4}\bar{D_3}\bar{D_2}\bar{D_1}+D_7 D_6 M_d M_s
+\end{eqnarray}
+
+\subsection{IF转出设计}
+IF转出到微地址01000-01111, 转出编码
+\begin{eqnarray*}
+F_0			&=& I_{HLT} \\
+F_1			&=& I_{Lrr}+I_{ALUopR}+I_{LMr} = D_7\bar{M_s} \\
+F_2			&=& I_{JMP}+I_{JMPc}+I_{CAL}+I_{CALc}+I_{LrI}+I_{LMI}+I_{ALUopI} = \bar{D_7}\bar{D_0}(D_6+\bar{D_6}D_2) \\
+F_3			&=& I_{LrM}+I_{ALUopM} = D_7 M_s(D_6\bar{M_d}+\bar{D_6}) \\
+F_4			&=& I_{INP}+I_{OUT} = D_7\bar{D_6}D_0 \\
+F_5			&=& I_{INr}+I_{DCr}+I_{ROT} = \bar{D_7}\bar{D_6}\bar{D_2}(\bar{M_d}\bar{D_1}+D_1\bar{D_0}) \\
+F_6			&=& I_{RET}+I_{RETc} = \bar{D_7}\bar{D_6}D_1 D_0 \\
+F_7			&=& I_{RST} = \bar{D_7}\bar{D_6}D_2\bar{D_1}D_0
+\end{eqnarray*}
+使用8-3编码器
+\begin{eqnarray*}
+Y_0^0		&=& F_1+F_3+F_5+F_7 \\
+Y_1^0		&=& F_2+F_3+F_6+F_7 \\
+Y_2^0		&=& F_4+F_5+F_6+F_7 
+\end{eqnarray*}
+微地址转换公式如下
+\begin{eqnarray*}
+A_4 &=& \mu A_4 \\
+A_3 &=& \mu A_3 \\
+A_2 &=& P_0(Y_2^0)+\mu A_2 \\
+A_1 &=& P_0(Y_1^0)+\mu A_1 \\
+A_0 &=& P_0(Y_0^0)+\mu A_0
+\end{eqnarray*}
+
+\subsection{1级转入设计}
+微地址编码
+\begin{itemize}
+  \item 10000: rW
+  \item 10001: ALU
+  \item 10010: rL
+  \item 10011: PCL
+  \item 10100: IFb
+  \item 10101: rB
+  \item 10110: X3
+\end{itemize}
+
+
+\chapter{基本逻辑}
+\section{编码器}
+\subsection{8-3编码器}
+\begin{tabular}{|c|c|c|c|c|c|c|c||c|c|c|}
+\hline
+$D_{7}$ & $D_{6}$ & $D_{5}$ & $D_{4}$ & $D_{3}$ & $D_{2}$ & $D_{1}$ & $D_{0}$ & $A_{2}$ & $A_{1}$ & $A_{0}$ \\
+\hline
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 \\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 1 & 1 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 \\
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 \\
+\hline
+\end{tabular}
+
+\begin{eqnarray}
+A_{0} &=& D_{1}+D_{3}+D_{5}+D_{7} \\
+A_{1} &=& D_{2}+D_{3}+D_{6}+D_{7} \\
+A_{2} &=& D_{4}+D_{5}+D_{6}+D_{7}
+\end{eqnarray}
 
 \end{document}
