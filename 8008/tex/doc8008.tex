@@ -168,7 +168,7 @@ A_{i}=\mu A_{i}+\sum P^{I}_{i}I_{i}+\sum P^{S}_{i}S_{i}+\sum P^{C}_{i}C_{i}
 \subsection{微指令转移方式}
 \begin{landscape}
 \begin{longtable}{|l|l|l|l|l|l|l|}
-\caption{微程序表} \label{tb_micro_prog} \\
+\caption{微程序表} \\
 \hline
 地址 & 微指令 & 状态 & 功能 & 下一微指令 & 下一状态 & 转移类型             \\
 \hline
@@ -298,7 +298,7 @@ A_{i}=J()
 \end{itemize}
 
 \subsection{微指令表}
-\begin{longtable}{|l|l|l|c|c|c|c|c|c|c|c|c|c|c|}
+\begin{longtable}{|l|l|l|c|c|c|c|c|c|c|c|c|c|c|c|}
 \caption{微指令表} \label{tb_micro_prog} \\
 \hline
 \multirow{2}{1cm}{地址} & \multirow{2}{1.5cm}{指令} & \multirow{2}{1.5cm}{微指令} & \multicolumn{3}{c|}{S} & \multicolumn{3}{c|}{P} & \multicolumn {5}{c|}{$\mu A$} \\
@@ -440,6 +440,65 @@ A_0 &=& P_0(Y_0^0)+\mu A_0
   \item 10101: rB
   \item 10110: X3
 \end{itemize}
+
+
+
+\chapter{微程序设计2}
+\section{指令跳转}
+\begin{eqnarray}
+A_4 &=& \mu A_4+P_4\cdot D_7 \\
+A_3 &=& \mu A_3+P_4\cdot D_6 \\
+A_2 &=& \mu A_2+P_0\cdot D_2 \\
+A_1 &=& \mu A_1+P_0\cdot D_1+P_3\cdot D_5D_4D_3 \\
+A_0 &=& \mu A_0+P_0\cdot D_0+P_1\cdot D_0+P_2\cdot D_2D_1D_0+P_3\cdot D_2D_1D_0
+\end{eqnarray}
+
+\begin{landscape}
+\begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\caption{微指令表} \label{tb_micro_prog2} \\
+\hline
+\multirow{2}{1.5cm}{微地址} & \multirow{2}{1.5cm}{微指令} & \multicolumn{5}{c|}{P} & \multicolumn {6}{c|}{$\mu A$} \\
+\cline{3-13}
+                          &           & 4 & 3 & 2 & 1 & 0 & 4 & 3 & 2 & 1 & 0 \\
+% 地址 & 微指令 & S2 & S1 & S0 & $P_{0}$ & $\mu A_{2}$ & $\mu A_{1}$ & $\mu A_{0}$             \\
+\hline
+\endfirsthead
+\caption{微指令表(续)} \\
+\hline
+\multirow{2}{1.5cm}{微地址} & \multirow{2}{1.5cm}{微指令} & \multicolumn{5}{c|}{P} & \multicolumn {6}{c|}{$\mu A$} \\
+\cline{3-13}
+                          &           & 4 & 3 & 2 & 1 & 0 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\hline
+\endhead
+\hline
+\endfoot
+000000 & X-INr 		& \\
+000001 & X-DCr 		& \\
+000010 & X-ALUop 	& \\
+000011 & POP(c) 	& \\
+000100 & PCL\_Imm 	& \\
+000101 & PCHa 		& \\
+000110 & PCL\_Imm 	& \\
+000111 & POP 		& \\
+\hline
+001000 & PCL\_ImmB	& \\
+001001 & rA\_o		& \\
+\hline
+010000 & rR		& \\
+010001 & rL\_o		& \\
+010010 & ALUop		& \\
+010011 & rH\_o		& \\
+010100 & rB\_i 		& \\
+010101 & X 		& \\
+\hline
+011001 & rR		& \\
+011010 & rL\_o		& \\
+011011 & HLT		& \\
+\hline
+111110 & PCH\_I 	& 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 0 & 1 \\
+111111 & PCL\_I 	& 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 1 & 0 \\
+\end{longtable}
+\end{landscape}
 
 
 \chapter{基本逻辑}
