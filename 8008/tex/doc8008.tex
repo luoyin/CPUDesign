@@ -442,16 +442,80 @@ A_0 &=& P_0(Y_0^0)+\mu A_0
 \end{itemize}
 
 
+\chapter{CPU模块设计}
+\section{模块组成}
+\begin{itemize}
+  \item Reg
+  \item RegBank
+  \item Stack
+\end{itemize}
+
 
 \chapter{微程序设计2}
 \section{指令跳转}
 \begin{eqnarray}
+A_5 &=& \mu A_5 \\
 A_4 &=& \mu A_4+P_4\cdot D_7 \\
 A_3 &=& \mu A_3+P_4\cdot D_6 \\
 A_2 &=& \mu A_2+P_0\cdot D_2 \\
 A_1 &=& \mu A_1+P_0\cdot D_1+P_3\cdot D_5D_4D_3 \\
-A_0 &=& \mu A_0+P_0\cdot D_0+P_1\cdot D_0+P_2\cdot D_2D_1D_0+P_3\cdot D_2D_1D_0
+A_0 &=& \mu A_0+P_0\cdot D_0+P_1\cdot D_0+P_2\cdot D_2D_1D_0+P_3\cdot D_2D_1D_0 \\
+    &+& P_5\cdot D_5D_4D_3+P_6\cdot (D_5+D_4)+P_7\cdot D_4
 \end{eqnarray}
+简化表达式, 如下
+\begin{eqnarray}
+A_5 &=& \mu A_5 \\
+A_4 &=& \mu A_4+P_6\cdot D_7 \\
+A_3 &=& \mu A_3+P_6\cdot D_6 \\
+A_2 &=& \mu A_2+P_0\cdot D_2 \\
+A_1 &=& \mu A_1+P_0\cdot D_1+P_5\cdot D_5D_4D_3 \\
+A_0 &=& \mu A_0+P_0\cdot D_0+P_1\cdot D_2D_1D_0+P_2\cdot D_5D_4D_3+P_3\cdot (D_5+D_4)+P_4\cdot D_4+P_7\cdot D_1
+\end{eqnarray}
+进一步简化表达式, 如下
+\begin{eqnarray}
+A_5 &=& \mu A_5 \\
+A_4 &=& \mu A_4+P_0\cdot D_7 \\
+A_3 &=& \mu A_3+P_0\cdot D_6 \\
+A_2 &=& \mu A_2+P_1\cdot D_2 \\
+A_1 &=& \mu A_1+P_1\cdot D_1+P_2\cdot D_5D_4D_3 \\
+A_0 &=& \mu A_0+P_1\cdot D_0+P_3\cdot D_2D_1D_0+P_3\cdot D_5+P_4\cdot D_4+P_5\cdot D_1
+\end{eqnarray}
+
+\subsection{分支设计}
+\begin{eqnarray}
+A_5 &=& \mu A_5 \\
+A_4 &=& \mu A_4 + P_x\cdot D_7 \\
+A_3 &=& \mu A_3 + P_x\cdot D_6 \\
+A_2 &=& \mu A_2 + P_0\bar{D_7}\bar{D_6}\cdot D_2 \\
+A_1 &=& \mu A_1 + P_0\bar{D_7}\bar{D_6}\cdot D_1 + P_3D_7D_6\cdot D_5D_4D_3 \\
+A_0 &=& \mu A_0 + P_0\bar{D_7}\bar{D_6}\cdot D_0 + P_2D_7D_6\cdot D_2D_1D_0 + P_4\cdot(D_5+D_4)+P_5\cdot D_0 \\
+\end{eqnarray}
+
+\begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\caption{微指令表} \label{tb_micro_prog3} \\
+\hline
+\multirow{2}{1.5cm}{微地址} & \multirow{2}{1.5cm}{微指令} & \multicolumn{6}{c|}{P} & \multicolumn {6}{c|}{$\mu A$} \\
+\cline{3-14}
+                          &           & 5 & 4 & 3 & 2 & 1 & 0 & 4 & 3 & 2 & 1 & 0 \\
+% 地址 & 微指令 & S2 & S1 & S0 & $P_{0}$ & $\mu A_{2}$ & $\mu A_{1}$ & $\mu A_{0}$             \\
+\hline
+\endfirsthead
+\caption{微指令表(续)} \\
+\hline
+\multirow{2}{1.5cm}{微地址} & \multirow{2}{1.5cm}{微指令} & \multicolumn{6}{c|}{P} & \multicolumn {6}{c|}{$\mu A$} \\
+\cline{3-14}
+                          &           & 5 & 4 & 3 & 2 & 1 & 0 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\hline
+\endhead
+\hline
+\endfoot
+%				& 5 & 4 & 3 & 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
+111101 & IF\_I 		& 0 & 0 & 0 & 0 & 0 & 1  & 0 & 0 & 0 & 0 & 0 & 0 \\
+111110 & PCH\_I 	& 0 & 0 & 0 & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 0 & 1 \\
+111111 & PCL\_I 	& 0 & 0 & 0 & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 0 \\
+\end{longtable}
+
+
 
 \begin{landscape}
 \begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -483,6 +547,8 @@ A_0 &=& \mu A_0+P_0\cdot D_0+P_1\cdot D_0+P_2\cdot D_2D_1D_0+P_3\cdot D_2D_1D_0
 \hline
 001000 & PCL\_ImmB	& \\
 001001 & rA\_o		& \\
+001010 & ImmA		& \\
+001011 & ImmA-PUSH	& \\ 
 \hline
 010000 & rR		& \\
 010001 & rL\_o		& \\
@@ -491,10 +557,14 @@ A_0 &=& \mu A_0+P_0\cdot D_0+P_1\cdot D_0+P_2\cdot D_2D_1D_0+P_3\cdot D_2D_1D_0
 010100 & rB\_i 		& \\
 010101 & X 		& \\
 \hline
+011000 & rR		& \\
 011001 & rR		& \\
 011010 & rL\_o		& \\
 011011 & HLT		& \\
 \hline
+100000 & X 		& 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 1 & 1 \\
+100001 & rW		& 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 1 & 1 \\
+111101 & IF		& 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 111110 & PCH\_I 	& 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 0 & 1 \\
 111111 & PCL\_I 	& 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 1 & 0 \\
 \end{longtable}

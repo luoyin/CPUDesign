@@ -22,8 +22,11 @@
 \contentsline {subsection}{\numberline {1.5.1}指令译码}{14}{subsection.1.5.1}
 \contentsline {subsection}{\numberline {1.5.2}IF转出设计}{15}{subsection.1.5.2}
 \contentsline {subsection}{\numberline {1.5.3}1级转入设计}{16}{subsection.1.5.3}
-\contentsline {chapter}{\numberline {2}微程序设计2}{17}{chapter.2}
-\contentsline {section}{\numberline {2.1}指令跳转}{17}{section.2.1}
-\contentsline {chapter}{\numberline {3}基本逻辑}{19}{chapter.3}
-\contentsline {section}{\numberline {3.1}编码器}{19}{section.3.1}
-\contentsline {subsection}{\numberline {3.1.1}8-3编码器}{19}{subsection.3.1.1}
+\contentsline {chapter}{\numberline {2}CPU模块设计}{17}{chapter.2}
+\contentsline {section}{\numberline {2.1}模块组成}{17}{section.2.1}
+\contentsline {chapter}{\numberline {3}微程序设计2}{19}{chapter.3}
+\contentsline {section}{\numberline {3.1}指令跳转}{19}{section.3.1}
+\contentsline {subsection}{\numberline {3.1.1}分支设计}{20}{subsection.3.1.1}
+\contentsline {chapter}{\numberline {4}基本逻辑}{23}{chapter.4}
+\contentsline {section}{\numberline {4.1}编码器}{23}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}8-3编码器}{23}{subsection.4.1.1}
