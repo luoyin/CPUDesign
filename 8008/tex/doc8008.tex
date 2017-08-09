@@ -483,38 +483,95 @@ A_0 &=& \mu A_0+P_1\cdot D_0+P_3\cdot D_2D_1D_0+P_3\cdot D_5+P_4\cdot D_4+P_5\cd
 
 \subsection{分支设计}
 \begin{eqnarray}
+S_M &=& D_2D_1D_0 \\
+D_M &=& D_5D_4D_3 \\
 A_5 &=& \mu A_5 \\
-A_4 &=& \mu A_4 + P_x\cdot D_7 \\
-A_3 &=& \mu A_3 + P_x\cdot D_6 \\
-A_2 &=& \mu A_2 + P_0\bar{D_7}\bar{D_6}\cdot D_2 \\
-A_1 &=& \mu A_1 + P_0\bar{D_7}\bar{D_6}\cdot D_1 + P_3D_7D_6\cdot D_5D_4D_3 \\
-A_0 &=& \mu A_0 + P_0\bar{D_7}\bar{D_6}\cdot D_0 + P_2D_7D_6\cdot D_2D_1D_0 + P_4\cdot(D_5+D_4)+P_5\cdot D_0 \\
+A_4 &=& \mu A_4 + Q_0D_7\\
+A_3 &=& \mu A_3 + Q_0D_6\\
+A_2 &=& \mu A_2 + Q_0(\bar D_7\bar D_6D_2) \\
+A_1 &=& \mu A_1 + Q_0(\bar D_7\bar D_6D_1+D_7D_6D_M) \\
+A_0 &=& \mu A_0 + Q_0(\bar D_7D_0+D_7S_M)+Q_1D_M+Q_2(D_5+D_4)
 \end{eqnarray}
 
-\begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\begin{longtable}{|c|c|c||c|c|c||c|c|c|c|c|c|c|}
 \caption{微指令表} \label{tb_micro_prog3} \\
 \hline
-\multirow{2}{1.5cm}{微地址} & \multirow{2}{1.5cm}{微指令} & \multicolumn{6}{c|}{P} & \multicolumn {6}{c|}{$\mu A$} \\
-\cline{3-14}
-                          &           & 5 & 4 & 3 & 2 & 1 & 0 & 4 & 3 & 2 & 1 & 0 \\
+\multirow{2}{1.5cm}{微地址} & \multirow{2}{1.5cm}{微子程序} & \multirow{2}{1.5cm}{微指令} & \multicolumn{3}{c||}{Q} & \multicolumn {6}{c|}{$\mu A$} \\
+\cline{4-12}
+                          &           &  & 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0 \\
 % 地址 & 微指令 & S2 & S1 & S0 & $P_{0}$ & $\mu A_{2}$ & $\mu A_{1}$ & $\mu A_{0}$             \\
 \hline
 \endfirsthead
 \caption{微指令表(续)} \\
 \hline
-\multirow{2}{1.5cm}{微地址} & \multirow{2}{1.5cm}{微指令} & \multicolumn{6}{c|}{P} & \multicolumn {6}{c|}{$\mu A$} \\
-\cline{3-14}
-                          &           & 5 & 4 & 3 & 2 & 1 & 0 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\multirow{2}{1.5cm}{微地址} & \multirow{2}{1.5cm}{微子程序} & \multirow{2}{1.5cm}{微指令} & \multicolumn{3}{c|}{Q} & \multicolumn {6}{c|}{$\mu A$} \\
+\cline{4-12}
+                          &           &  & 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0 \\
 \hline
 \endhead
 \hline
 \endfoot
-%				& 5 & 4 & 3 & 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
-111101 & IF\_I 		& 0 & 0 & 0 & 0 & 0 & 1  & 0 & 0 & 0 & 0 & 0 & 0 \\
-111110 & PCH\_I 	& 0 & 0 & 0 & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 0 & 1 \\
-111111 & PCL\_I 	& 0 & 0 & 0 & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 0 \\
+%							& 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
+000000 & - 		& X1 			& 0 & 0 & 0  & 0 & 1 & 0 & 1 & 1 & 0 \\ % INr 	(00DDD000)
+000001 & - 		& X2 			& 0 & 0 & 0  & 0 & 1 & 0 & 1 & 1 & 1 \\ % DCr 	(00DDD001)
+000010 & - 		& X3			& 0 & 0 & 0  & 0 & 1 & 1 & 1 & 1 & 1 \\ % ROT 	(000PP010)
+000011 & - 		& POP(c) 		& 0 & 0 & 0  & 1 & 0 & 0 & 0 & 0 & 0 \\ % RETc 	(00xxx011)
+000100 & P\_IMMB1 	& PCL\_BUS 	& 0 & 0 & 0  & 0 & 0 & 1 & 1 & 1 & 0 \\ % ALUopI	(00PPP100)
+000101 & P\_PCU 	& rA\_PCH		& 0 & 0 & 0  & 1 & 0 & 0 & 1 & 0 & 0 \\ % RST 	(00AAA101)
+000110 & P\_IMMB2 	& PCL\_BUS	 	& 0 & 0 & 0  & 0 & 1 & 0 & 0 & 1 & 0 \\ % LrI/LMI	(00DDD110)
+000111 & - 		& POP			& 0 & 0 & 0  & 1 & 0 & 0 & 0 & 0 & 0 \\ % RET	(00xxx111)
+\hline
+%							& 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
+001000 & P\_IMMB3 	& PCL\_BUS 	& 0 & 0 & 0  & 0 & 1 & 0 & 1 & 0 & 0 \\ % JMP/CAL
+001001 & - 		& rA\_BUS  	& 0 & 0 & 0  & 1 & 0 & 1 & 0 & 1 & 1 \\ % INP/OUT
+001010 & - 		& X4 			&   &   &    &   &   &   &   &   &   \\
+001011 & P\_MEM\_W 	& rL\_BUS 		&   &   &    &   &   &   &   &   &   \\
+001100 & - 		& BUS\_rB 		& 0 & 0 & 0  & 1 & 0 & 1 & 1 & 0 & 0 \\
+001101 & - 		& X5 			& 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+001110 & P\_IMMB1	& PCH\_BUS		& 0 & 0 & 0  & 0 & 0 & 1 & 1 & 1 & 1 \\
+001111 & P\_IMMB1	& BUS\_rB 		&   &   &    &   &   &   &   &   &   \\
+\hline
+%							& 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
+010000 & - 		& r[src]\_rB 	& 0 & 0 & 0  & 1 & 0 & 0 & 0 & 0 & 1 \\ % ALUopR
+010001 & P\_MEM\_R 	& rL\_BUS 		&   &   &    &   &   &   &   &   &   \\ % ALUopM
+010010 & P\_IMMB2 	& PCH\_BUS 	& 0 & 0 & 0  & 0 & 1 & 0 & 0 & 1 & 1 \\
+010011 & P\_IMMB2 	& BUS\_rB 		& 0 & 1 & 0  & 0 & 0 & 1 & 0 & 1 & 0 \\
+010100 & P\_IMMB3	& PCH\_BUS 	& 0 & 0 & 0  & 0 & 1 & 0 & 1 & 0 & 1 \\
+010101 & P\_IMMB3	& BUS\_rB 		& 0 & 0 & 0  & 0 & 1 & 1 & 1 & 0 & 0 \\
+010110 & - 		& ALU(+1) 		& 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+010111 & - 		& ALU(-1) 		& 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+\hline
+%							& 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
+011000 & - 		& r[src]\_rB 	&   &   &    &   &   &   &   &   &   \\ % Lrr
+011001 & P\_MEM\_R 	& rL\_BUS  	&   &   &    &   &   &   &   &   &   \\ % LrM
+011010 & - 		& r[src]\_rB	&   &   &    &   &   &   &   &   &   \\ % LMr
+011011 & - 		& - 			&   &   &    &   &   &   &   &   &   \\ 
+011100 & P\_IMMA 	& PCL\_BUS 	& 0 & 0 & 0  & 0 & 1 & 1 & 1 & 0 & 1 \\
+011101 & P\_IMMA 	& PCH\_BUS 	& 0 & 0 & 0  & 0 & 1 & 1 & 1 & 1 & 0 \\
+011110 & P\_IMMA 	& BUS\_rA 		&   &   &    &   &   &   &   &   &   \\ 
+011111 & - 		& ALU(ROT)		&   &   &    &   &   &   &   &   &   \\ 
+\hline
+%							& 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
+100000 & - 		& X6 			&   &   &    &   &   &   &   &   &   \\ 
+100001 & - 		& ALU(op)		& 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+100010 & - 		& rB\_r[D]		& \\
+100011 & - 		& X7 			& \\
+100100 & - 		& rH\_BUS		& \\
+100101 & - 		& rB\_BUS		& \\
+100110 & - 		& rH\_BUS		& \\
+100111 & - 		& BUS\_rB 		& \\
+101000 & - 		& rH\_BUS		& \\
+101001 & - 		& BUS\_rB 		& \\
+101010 & - 		& X8 			& \\
+101011 & - 		& rB\_BUS		& \\
+101100 & - 		& COND\_BUS	& 0 & 0 & 0  & 1 & 0 & 1 & 1 & 0 & 1 \\
+101101 & - 		& rB\_rA		& 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+101110 & - 		& BUS\_rB 		& 0 & 0 & 0  & 1 & 0 & 1 & 1 & 1 & 0 \\
+101111 & - 		& rB\_PCL		& 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+111101 & - 		& BUS\_rB/IR	& 0 & 0 & 1  & 0 & 0 & 0 & 0 & 0 & 0 \\
+111110 & - 	 	& PCH\_BUS		& 0 & 0 & 0  & 1 & 1 & 1 & 1 & 0 & 1 \\
+111111 & - 	 	& PCL\_BUS		& 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 0 \\
 \end{longtable}
-
 
 
 \begin{landscape}
@@ -569,6 +626,263 @@ A_0 &=& \mu A_0 + P_0\bar{D_7}\bar{D_6}\cdot D_0 + P_2D_7D_6\cdot D_2D_1D_0 + P_
 111111 & PCL\_I 	& 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 1 & 0 \\
 \end{longtable}
 \end{landscape}
+
+
+\chapter{CPU设计 (微程序版本)}
+\section{微指令}
+\subsection{微指令转移}
+\begin{eqnarray}
+S_M &=& D_2D_1D_0 \\
+D_M &=& D_5D_4D_3 \\
+A_5 &=& \mu A_5 \\
+A_4 &=& \mu A_4 + Q_0D_7\\
+A_3 &=& \mu A_3 + Q_0D_6\\
+A_2 &=& \mu A_2 + Q_0(\bar D_7\bar D_6D_2) \\
+A_1 &=& \mu A_1 + Q_0(\bar D_7\bar D_6D_1+D_7D_6D_M) \\
+A_0 &=& \mu A_0 + Q_0(\bar D_7D_0+D_7S_M)+Q_1D_M+Q_2(D_5+D_4)
+\end{eqnarray}
+
+\subsection{微指令表}
+\begin{longtable}{|c|c|c|c||c|c|c||c|c|c||c|c|c|c|c|c|}
+\caption{微指令表2} \label{tb_micro_prog4} \\
+\hline
+\multirow{2}{1.5cm}{微地址} & \multirow{2}{1.5cm}{微子程序} & \multirow{2}{1.5cm}{微指令} & \multirow{2}{1.0cm}{时序} &  \multicolumn{3}{c||}{S} & \multicolumn{3}{c||}{Q} & \multicolumn {6}{c|}{$\mu A$} \\
+\cline{5-16}
+                          &           &  &  & 2 & 1 & 0 &  2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0 \\
+% 地址 & 微指令 & S2 & S1 & S0 & $P_{0}$ & $\mu A_{2}$ & $\mu A_{1}$ & $\mu A_{0}$             \\
+\hline
+\endfirsthead
+\caption{微指令表2(续)} \\
+\hline
+\multirow{2}{1.5cm}{微地址} & \multirow{2}{1.5cm}{微子程序} & \multirow{2}{1.5cm}{微指令} & \multirow{2}{1.0cm}{时序} & \multicolumn{3}{c||}{S} &\multicolumn{3}{c||}{Q} & \multicolumn {6}{c|}{$\mu A$} \\
+\cline{5-16}
+                          &           &  &  & 2 & 1 & 0 &  2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0 \\
+\hline
+\endhead
+\hline
+\endfoot
+%							& Time & 2 & 1 & 0  & 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
+000000 & - 		& X1-T4 		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 0 & 0 & 0 & 1 \\
+000001 & - 		& X2-T4		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 0 & 0 & 1 & 0 \\
+000010 & - 		& X3-T4		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 0 & 0 & 1 & 1 \\
+000011 & - 		& POP			& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 0 & 1 & 0 & 1 \\
+000100 & IMMB1		& PCL-BUS		& T1   & 0 & 1 & 0  & 0 & 0 & 0  & 0 & 1 & 0 & 0 & 1 & 0 \\
+000101 & PCupdate	& rA-PCH		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 0 & 1 & 0 & 0 \\
+000110 & IMMB2		& PCL-BUS 		& T1   & 0 & 1 & 0  & 0 & 0 & 0  & 0 & 1 & 0 & 1 & 0 & 0 \\
+000111 & - 		& POP			& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 0 & 1 & 1 & 0 \\
+\hline
+%							& Time & 2 & 1 & 0  & 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
+001000 & IMMB3 		& PCL-BUS		& T1   & 0 & 1 & 0  & 0 & 0 & 0  & 0 & 1 & 0 & 1 & 1 & 0 \\
+001001 & - 		& rA-BUS		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 0 & 0 & 1 & 0 & 1 \\
+001010 & - 		& X4-T4		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 0 & 1 & 1 \\
+001011 & - 		& rL-BUS		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 0 & 1 & 1 & 1 & 1 & 1 \\
+001100 & - 		& BUS-rB 		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 0 & 0 & 1 & 1 & 0 \\
+001101 & - 		& X1-T3		& T3   & 0 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+001110 & - 		& X 			& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+001111 & - 		& X 			& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+\hline
+%							& Time & 2 & 1 & 0  & 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
+010000 & - 		& r[S]-BUS		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 0 & 0 & 1 \\
+010001 & - 		& rL-BUS		& T1   & 0 & 1 & 0  & 0 & 0 & 0  & 0 & 1 & 1 & 1 & 0 & 0 \\
+010010 & IMMB1		& PCH-BUS		& T2   & 1 & 0 & 0  & 0 & 0 & 0  & 0 & 1 & 0 & 0 & 1 & 1 \\
+010011 & IMMB1		& BUS-rB 		& T3   & 0 & 0 & 1  & 0 & 0 & 0  & 0 & 1 & 1 & 1 & 1 & 0 \\
+010100 & IMMB2		& PCH-BUS		& T2   & 1 & 0 & 0  & 0 & 0 & 0  & 0 & 1 & 0 & 1 & 0 & 0 \\
+010101 & IMMB2		& BUS-rB 		& T3   & 0 & 0 & 1  & 0 & 1 & 0  & 0 & 0 & 1 & 0 & 1 & 0 \\
+010110 & IMMB3		& PCH-BUS		& T2   & 1 & 0 & 0  & 0 & 0 & 0  & 0 & 1 & 0 & 1 & 1 & 1 \\
+010111 & IMMB3		& BUS-rB 		& T3   & 0 & 0 & 1  & 0 & 0 & 0  & 1 & 0 & 0 & 1 & 1 & 1 \\
+\hline
+%							& Time & 2 & 1 & 0  & 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
+011000 & - 		& r[S]-rB 		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 0 & 1 & 1 \\
+011001 & MEMR 		& rL-BUS		& T1   & 0 & 1 & 0  & 0 & 0 & 0  & 1 & 0 & 0 & 0 & 0 & 0 \\
+011010 & - 		& r[S]-rB 		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 0 & 0 & 1 & 0 & 1 & 1 \\
+011011 & - 		& X 			& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+011100 & MEMR		& rH-BUS		& T2   & 1 & 0 & 0  & 0 & 0 & 0  & 0 & 1 & 1 & 1 & 0 & 1 \\
+011101 & MEMR		& BUS-rB 		& T3   & 0 & 0 & 1  & 0 & 0 & 0  & 0 & 1 & 1 & 1 & 1 & 0\\
+011110 & - 		& X5-T4		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 0 & 0 & 1 \\
+011111 & MEMW		& rH-BUS		& T2   & 1 & 0 & 0  & 0 & 0 & 0  & 1 & 1 & 1 & 0 & 1 & 0 \\
+\hline
+%							& Time & 2 & 1 & 0  & 2 & 1 & 0  & 5 & 4 & 3 & 2 & 1 & 0  
+100000 & MEMR		& rH-BUS		& T2   & 1 & 0 & 0  & 0 & 0 & 0  & 1 & 0 & 0 & 0 & 0 & 1 \\
+100001 & - 		& BUS-rB 		& T3   & 0 & 0 & 1  & 0 & 0 & 0  & 1 & 0 & 0 & 0 & 1 & 0 \\
+100010 & - 		& X6-T4		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 0 & 1 & 1 \\
+100011 & IMMA		& PCH-BUS		& T2   & 1 & 0 & 0  & 0 & 0 & 0  & 1 & 0 & 0 & 0 & 1 & 1 \\
+100100 & IMMA		& BUS-rA		& T3   & 0 & 0 & 1  & 0 & 0 & 0  & 0 & 0 & 0 & 1 & 0 & 1 \\
+100101 & - 		& rB-BUS		& T3   & 0 & 0 & 1  & 1 & 0 & 0  & 0 & 0 & 1 & 1 & 0 & 0 \\
+100110 & - 		& COND-BUS		& T4   & 1 & 1 & 1  & 0 & 0 & 0  & 1 & 1 & 0 & 1 & 1 & 1 \\
+100111 & - 		& PCL-BUS		& T1   & 0 & 1 & 0  & 0 & 0 & 0  & 1 & 0 & 0 & 0 & 1 & 1 \\
+110001 & - 		& ALU(+1)		& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+110010 & - 		& ALU(-1)		& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+110011 & - 		& ALU(ROT)		& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+110100 & - 		& rB-PCL		& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+110101 & - 		& X-T5		& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+110110 & - 		& rB-PCL		& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+110111 & - 		& rB-rA		& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+111000 & - 		& X 			& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+111001 & - 		& ALU(op)		& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+111010 & - 		& rB-BUS		& T3   & 0 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+111011 & - 		& rB-r[D]		& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+111100 & - 		& X 			& T5   & 1 & 0 & 1  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 1 \\
+111101 & IF-2		& BUS-rB/IF	& T3   & 0 & 0 & 1  & 0 & 0 & 1  & 0 & 0 & 0 & 0 & 0 & 0 \\
+111110 & IF-1		& PCH-BUS		& T2   & 1 & 0 & 0  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 0 & 1 \\
+111111 & IF-0		& PCL-BUS		& T1   & 0 & 1 & 0  & 0 & 0 & 0  & 1 & 1 & 1 & 1 & 1 & 0 \\
+\end{longtable}
+
+\subsection{状态转换}
+
+
+
+\chapter{CPU设计 (状态机版本)}
+\section{状态机切换}
+\subsection{状态变量}
+\begin{itemize}
+  \item 指令周期: C1, C2, C3
+  \item 执行周期: T1, T2, T3, T4, T5
+\end{itemize}
+
+\subsection{状态切换}
+\begin{itemize}
+  \item C1/T1: next=C1/T2
+  \item C1/T2: next=C1/T3
+  \item C1/T3
+  \begin{itemize}
+    \item 0000000x/11111111: next=STOP
+    \item 00xxx011: next=T1 (cond)
+    \item 
+  \end{itemize}
+  \item C1/T4
+  \item C1/T5
+\end{itemize}
+
+\section{操作码编码}
+\begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\caption{操作码编码} \label{tb_opcode} \\
+\hline
+指令 & 指令码 & MR & MW & ALU & ROT & INr & DCr & regR & regW & J/C & RET & INP & OUT & RST \\
+\hline
+\endfirsthead
+\caption{操作码编码 (续)} \\
+\hline
+指令 & 指令码 & MR & MW & ALU & ROT & INr & DCr & regR & regW & J/C & RET & INP & OUT & RST \\
+\hline
+\endhead
+\hline
+\endfoot
+INr 			& 00DDD000 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+DCr			& 00DDD001 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ROT			& 00PPP010 & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+RFc/RTc		& 00XCC011 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+ALU op I 		& 00PPP100 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+RST			& 00AAA101 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+LrI			& 00DDD110 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+LMI			& 00111110 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+RET			& 00XXX111 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+\end{longtable}
+
+\subsection{操作编码}
+\begin{itemize}
+  \item Rs, Ms, Is
+  \item Rd, Md, ALU
+\end{itemize}
+
+\begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\caption{操作编码} \label{tb_micro_op} \\
+\hline
+\multirow{2}{1.5cm}{指令} & \multirow{2}{1.5cm}{指令码} & \multicolumn{4}{c|}{T4/src} & \multicolumn {4}{c|}{T5/dst} & \multicolumn {6}{c|}{misc} \\
+\cline{3-18}
+  &  &  X & reg & Imm & Mem &  X & reg & Mem & ALU &  ROT & I/D & PC & IO & POP & RST \\
+\hline
+\endfirsthead
+\caption{微指令表2(续)} \\
+\hline
+\multirow{2}{1.5cm}{指令} & \multirow{2}{1.5cm}{指令码} & \multicolumn{4}{c|}{T4/src} & \multicolumn {4}{c|}{T5/dst} & \multicolumn {6}{c|}{misc} \\
+\cline{3-18}
+  &  &  X & reg & Imm & Mem &  X & reg & Mem & ALU &  ROT & I/D & PC & IO & POP & RST \\
+\hline
+\endhead
+\hline
+\endfoot
+%  		&          &  X & reg & Imm & Mem &  X & reg & Mem & ALU &  ROT & I/D & PC & IO & POP & RST \\
+INr		& 00DDD000 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 1   & 0  & 0  & 0   & 0 \\
+DCr		& 00DDD001 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 1   & 0  & 0  & 0   & 0 \\
+ROT		& 000RR010 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  1   & 0   & 0  & 0  & 0   & 0 \\
+RFc/RTc	& 00XCC011 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 0   & 0  & 0  & 1   & 0 \\
+ALU op I 	& 00PPP100 &  0 & 0   & 1   & 0   &  0 & 0   & 0   & 1   &  0   & 0   & 0  & 0  & 0   & 0 \\
+RST		& 00AAA101 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 0   & 0  & 0  & 0   & 1 \\
+LrI		& 00DDD110 &  0 & 0   & 1   & 0   &  0 & 1   & 0   & 0   &  0   & 0   & 0  & 0  & 0   & 0 \\
+LMI		& 00111110 &  0 & 0   & 1   & 0   &  0 & 0   & 1   & 0   &  0   & 0   & 0  & 0  & 0   & 0 \\
+RET		& 00XXX111 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 0   & 0  & 0  & 1   & 0 \\
+\hline
+JFc/JTc	& 01XCC000 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 0   & 1  & 0  & 0   & 0 \\
+CFc/CTc	& 01XCC010 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 0   & 1  & 0  & 0   & 0 \\
+JMP		& 01XXX100 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 0   & 1  & 0  & 0   & 0 \\
+CAL		& 01XXX110 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 0   & 1  & 0  & 0   & 0 \\
+INP		& 0100MMM1 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 0   & 0  & 1  & 0   & 0 \\
+OUT		& 01RRMMM1 &  0 & 0   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 0   & 0  & 1  & 0   & 0 \\
+\hline
+ALU op r 	& 10PPPSSS &  0 & 1   & 0   & 0   &  0 & 0   & 0   & 0   &  0   & 0   & 0  & 0  & 0   & 0 \\
+ALU op M 	& 10PPP111 &  0 & 0   & 0   & 1   &  0 & 0   & 0   & 0   &  0   & 0   & 0  & 0  & 0   & 0 \\
+\hline
+Lrr		& 11DDDSSS &  0 & 1   & 0   & 0   &  0 & 1   & 0   & 0   &  0   & 0   & 0  & 0  & 0   & 0 \\
+LrM		& 11DDD111 &  0 & 0   & 0   & 1   &  0 & 1   & 0   & 0   &  0   & 0   & 0  & 0  & 0   & 0 \\
+LMr		& 11111SSS &  0 & 1   & 0   & 0   &  0 & 0   & 1   & 0   &  0   & 0   & 0  & 0  & 0   & 0 \\
+\end{longtable}
+
+\section{总线设计}
+\subsection{CPU内总线}
+CPU内总线使用与总线(wand), 使用以下逻辑关系
+\begin{eqnarray*}
+DB &=& \overline{D\cdot OE} \\
+IN &=& \overline{DB}
+\end{eqnarray*}
+
+
+\chapter{CPU设计}
+\section{指令译码设计}
+\subsection{指令分类}
+\begin{itemize}
+  \item 数据转移指令: Lrr, LrM, LMr, LMI
+  \item 算术指令: ALU op r, ALU op M, ALU op I
+  \item 跳转指令: JMP, JFc/JTc, CAL, CFc/CTc, RET, RFc/RTc
+  \item 特殊指令: INr/DCr, ROT, NOP, HLT
+  \item I/O指令: INP, OUT
+\end{itemize}
+
+\subsection{模块组成}
+\begin{itemize}
+  \item rA
+  \begin{itemize}
+    \item 源: I(BUS), rB
+  \end{itemize}
+  \item rB
+  \begin{itemize}
+    \item 源: r[SRC], M(BUS), I(BUS)
+  \end{itemize}
+  \item regBank
+  \begin{itemize}
+    \item 源: rB
+  \end{itemize}
+  \item stack
+  \begin{itemize}
+    \item 源: rA, rB
+    \item 操作: POP, PUSH
+  \end{itemize}
+  \item ALU
+  \begin{itemize}
+    \item 源: rA, rB
+    \item 操作: OP
+  \end{itemize}
+  \item ACC (r[0])
+  \begin{itemize}
+    \item 源: ALU
+    \item 操作: ROT, INr, DCr
+  \end{itemize}
+\end{itemize}
+
+\subsection{指令译码}
+\begin{itemize}
+  \item 源: $S_{r}$, $S_{I}$, $S_{M}$
+  \item 目标
+\end{itemize}
 
 
 \chapter{基本逻辑}

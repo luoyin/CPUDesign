@@ -1,0 +1,15 @@
+[DesignChecker]
+Intel8008_lib = $HDS_PROJECT_DIR\Intel8008_lib\designcheck
+[ModelSim]
+Intel8008_lib = $HDS_PROJECT_DIR\Intel8008_lib\work
+[hdl]
+Intel8008_lib = $HDS_PROJECT_DIR\Intel8008_lib\hdl
+[hds]
+Intel8008_lib = $HDS_PROJECT_DIR\Intel8008_lib\hds
+[hds_settings]
+default_library = Intel8008_lib
+version = 2
+[library_type]
+Intel8008_lib = regular
+[shared]
+others = $HDS_TEAM_HOME/shared.hdp

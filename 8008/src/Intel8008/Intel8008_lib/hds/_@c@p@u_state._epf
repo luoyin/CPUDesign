@@ -1,0 +1,2 @@
+DEFAULT_ARCHITECTURE atom CPU_state
+DEFAULT_FILE atom CPU_state.v
